@@ -8,7 +8,7 @@ import StarIcon from '@mui/icons-material/Star';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 
-const APP_NAME = 'Quizzz';
+const APP_NAME = 'MindTrek';
 
 const gradientBg = {
   minHeight: '100vh',
@@ -202,7 +202,7 @@ const Home = () => {
       </Container>
 
       <Typography variant="body2" color="text.secondary" sx={{ mt: 2, mb: 4, opacity: 0.7 }}>
-        © {new Date().getFullYear()} Quizzz. All rights reserved.
+        © {new Date().getFullYear()} MindTrek. All rights reserved.
       </Typography>
     </Box>
   );

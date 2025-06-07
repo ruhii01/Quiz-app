@@ -2,23 +2,21 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const { MONGODB_URI, DB_NAME, MONGODB_OPTIONS } = require('./config');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 
-// MongoDB Connection
-mongoose.connect('mongodb://localhost:27017/quizapp', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log('Connected to MongoDB');
-}).catch((err) => {
-  console.error('MongoDB connection error:', err);
-});
+// Configure CORS with specific options
+app.use(cors({
+  origin: 'http://localhost:3000', // Allow frontend origin
+  credentials: true, // Allow credentials
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed methods
+  allowedHeaders: ['Content-Type', 'Authorization'] // Allowed headers
+}));
 
 // Middleware
-app.use(cors());
 app.use(express.json());
 
 // Import Score model
@@ -29,73 +27,73 @@ const User = require('./models/User');
 const questions = [
   {
     id: 1,
-    question: "What is the capital of France?",
-    options: ["London", "Berlin", "Paris", "Madrid"],
-    correctAnswer: "Paris",
-    hint: "It's known as the City of Love.",
+    question: "Which programming language was created by Brendan Eich in 1995?",
+    options: ["Python", "Java", "JavaScript", "PHP"],
+    correctAnswer: "JavaScript",
+    hint: "It was originally created for Netscape browser.",
   },
   {
     id: 2,
-    question: "Which planet is known as the Red Planet?",
-    options: ["Venus", "Mars", "Jupiter", "Saturn"],
-    correctAnswer: "Mars",
-    hint: "It's the fourth planet from the Sun.",
+    question: "What does CSS stand for?",
+    options: ["Computer Style Sheets", "Cascading Style Sheets", "Creative Style System", "Color Style Syntax"],
+    correctAnswer: "Cascading Style Sheets",
+    hint: "It's used for styling web pages.",
   },
   {
     id: 3,
-    question: "What is 2 + 2?",
-    options: ["3", "4", "5", "6"],
-    correctAnswer: "4",
-    hint: "Think about simple addition.",
+    question: "Which of these is NOT a JavaScript framework?",
+    options: ["Angular", "Django", "Vue", "React"],
+    correctAnswer: "Django",
+    hint: "This one is a Python framework.",
   },
   {
     id: 4,
-    question: "Who painted the Mona Lisa?",
-    options: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"],
-    correctAnswer: "Leonardo da Vinci",
-    hint: "He was also an inventor and scientist.",
+    question: "What is the purpose of SQL?",
+    options: ["Styling web pages", "Database management", "Server configuration", "Image processing"],
+    correctAnswer: "Database management",
+    hint: "It's used to interact with relational databases.",
   },
   {
     id: 5,
-    question: "What is the largest ocean on Earth?",
-    options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
-    correctAnswer: "Pacific Ocean",
-    hint: "It covers more area than all of Earth's land combined.",
+    question: "Which protocol is used for secure data transfer over the web?",
+    options: ["HTTP", "FTP", "HTTPS", "SMTP"],
+    correctAnswer: "HTTPS",
+    hint: "It's the encrypted version of HTTP.",
   },
   {
     id: 6,
-    question: "Which programming language is known as the 'language of the web'?",
-    options: ["Python", "Java", "JavaScript", "C++"],
-    correctAnswer: "JavaScript",
-    hint: "It runs in your browser.",
+    question: "What does API stand for?",
+    options: ["Application Programming Interface", "Advanced Program Integration", "Automated Processing Interface", "Application Process Integration"],
+    correctAnswer: "Application Programming Interface",
+    hint: "It's how different software components communicate.",
   },
   {
     id: 7,
-    question: "What is the chemical symbol for gold?",
-    options: ["Ag", "Fe", "Au", "Cu"],
-    correctAnswer: "Au",
-    hint: "It comes from the Latin word 'aurum'.",
+    question: "Which of these is a version control system?",
+    options: ["Docker", "Jenkins", "Git", "Kubernetes"],
+    correctAnswer: "Git",
+    hint: "Created by Linus Torvalds for Linux development.",
   },
   {
     id: 8,
-    question: "Which country is home to the kangaroo?",
-    options: ["New Zealand", "South Africa", "Australia", "Brazil"],
-    correctAnswer: "Australia",
-    hint: "It's a continent and a country.",
+    question: "What is Node.js?",
+    options: ["Web browser", "Runtime environment", "Database system", "Operating system"],
+    correctAnswer: "Runtime environment",
+    hint: "It allows JavaScript to run outside the browser.",
   },
   {
     id: 9,
-    question: "What is the largest mammal in the world?",
-    options: ["African Elephant", "Blue Whale", "Giraffe", "Hippopotamus"],
-    correctAnswer: "Blue Whale",
-    hint: "It lives in the ocean and is huge.",
+    question: "Which company developed React.js?",
+    options: ["Google", "Microsoft", "Facebook", "Amazon"],
+    correctAnswer: "Facebook",
+    hint: "Now known as Meta.",
   },
   {
     id: 10,
-    question: "Who wrote 'Romeo and Juliet'?",
-    options: ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"],
-    correctAnswer: "William Shakespeare",
-    hint: "He is England's national poet.",
+    question: "What is MongoDB classified as?",
+    options: ["SQL Database", "NoSQL Database", "File System", "Web Server"],
+    correctAnswer: "NoSQL Database",
+    hint: "It stores data in JSON-like documents.",
   }
 ];
 
@@ -196,9 +194,14 @@ app.post('/api/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials.' });
     }
 
-    // TODO: Implement token generation and sending to frontend
-    // For now, we'll just send a success message and the username
-    res.status(200).json({ message: 'Login successful.', username: user.username /*, token: 'your_auth_token'*/ });
+    // Generate a simple token (in production, use JWT)
+    const token = Buffer.from(username).toString('base64');
+
+    res.status(200).json({
+      message: 'Login successful.',
+      username: user.username,
+      token: token
+    });
 
   } catch (error) {
     console.error('Login error:', error);
@@ -245,6 +248,62 @@ app.post('/api/signup', async (req, res) => {
     console.error('Signup error:', error);
     res.status(500).json({ message: 'An error occurred during signup.' });
   }
+});
+
+// Add this route before startServer(PORT)
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await User.find({}, 'username -_id');
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Error fetching users' });
+  }
+});
+
+// Add this route before startServer(PORT)
+app.delete('/api/users/clear', async (req, res) => {
+  try {
+    await User.deleteMany({});
+    console.log('All users cleared');
+    res.status(200).json({ message: 'All users cleared successfully' });
+  } catch (error) {
+    console.error('Error clearing users:', error);
+    res.status(500).json({ message: 'Error clearing users' });
+  }
+});
+
+// MongoDB Connection with retry logic
+const connectWithRetry = async () => {
+  try {
+    console.log('Attempting to connect to MongoDB...');
+    await mongoose.connect(MONGODB_URI, {
+      ...MONGODB_OPTIONS,
+      dbName: DB_NAME
+    });
+    console.log('Successfully connected to MongoDB Atlas');
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+    console.log('Retrying connection in 5 seconds...');
+    setTimeout(connectWithRetry, 5000);
+  }
+};
+
+// Initial connection
+connectWithRetry();
+
+// Handle MongoDB connection events
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected. Attempting to reconnect...');
+  connectWithRetry();
+});
+
+mongoose.connection.on('connected', () => {
+  console.log('MongoDB connected successfully');
 });
 
 // Start server with port fallback

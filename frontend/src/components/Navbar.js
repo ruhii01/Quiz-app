@@ -52,7 +52,7 @@ const Navbar = () => {
               component="div"
               sx={gradientText}
             >
-              Quizzz
+              MindTrek
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', gap: { xs: 0.8, sm: 1.5 }, alignItems: 'center' }}>

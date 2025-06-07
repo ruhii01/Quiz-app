@@ -16,7 +16,7 @@ import {
   Box,
 } from '@mui/material';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'http://localhost:3001';
 
 const glassCard = {
   px: { xs: 1, sm: 4 },

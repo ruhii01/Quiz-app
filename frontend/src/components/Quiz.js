@@ -27,7 +27,7 @@ import StarIcon from '@mui/icons-material/Star';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'http://localhost:3001';
 const QUESTION_TIME = 30; // seconds per question
 
 const Quiz = () => {

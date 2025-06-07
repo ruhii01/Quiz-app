@@ -12,8 +12,8 @@ import { useNavigate } from 'react-router-dom';
 import QuizIcon from '@mui/icons-material/Quiz';
 import axios from 'axios';
 
-const APP_NAME = 'Quizzz';
-const API_BASE_URL = 'http://localhost:5000';
+const APP_NAME = 'MindTrek';
+const API_BASE_URL = 'http://localhost:3001';
 
 const glassCard = {
   px: { xs: 1, sm: 5 },
@@ -46,35 +46,23 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const trimmedUsername = username.trim();
-
-    if (!trimmedUsername) {
-      setError('Username cannot be empty.');
-      console.log('DEBUG: Username is empty.');
-      return;
-    }
+    setError('');
 
     try {
-      console.log(`DEBUG: Checking existence for username: ${trimmedUsername}`);
-      const response = await axios.get(`${API_BASE_URL}/api/user/exists/${trimmedUsername}`);
+      const response = await axios.post(`${API_BASE_URL}/api/login`, {
+        username,
+        password
+      });
 
-      console.log('DEBUG: Backend response:', response.data);
+      // Store username and token in localStorage
+      localStorage.setItem('username', response.data.username);
+      localStorage.setItem('authToken', response.data.token);
 
-      if (response.data.exists) {
-        // Username exists, show error and prevent login
-        setError('Username already taken. Please choose another.');
-        console.log('DEBUG: Username exists, showing error.');
-      } else {
-        // Username is unique, proceed to login
-        localStorage.setItem('authToken', response.data.token || 'true');
-        setError('');
-        console.log('DEBUG: Username is unique, logging in.');
-        navigate('/');
-      }
+      // Navigate to quiz page
+      navigate('/quiz');
     } catch (err) {
-      console.error('Error checking username existence:', err);
-      setError('An error occurred. Please try again.');
-      console.log('DEBUG: Error during existence check.', err);
+      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      console.error('Login error:', err);
     }
   };
 
